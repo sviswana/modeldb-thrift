@@ -9,6 +9,12 @@ struct Project {
   4: string description
 }
 
+struct ExperimentRun {
+  1: i32 id = -1,
+  2: i32 projectId,
+  3: string description
+}
+
 struct DataFrameColumn {
   1: string name,
   2: string type
@@ -20,7 +26,6 @@ struct DataFrame {
   3: i32 numRows,
   4: string tag = ""
 }
-
 
 struct HyperParameter {
   1: string name,
@@ -36,6 +41,14 @@ struct ProjectEvent {
 
 struct ProjectEventResponse {
   1: i32 projectId
+}
+
+struct ExperimentRunEvent {
+  1: ExperimentRun experimentrun
+}
+
+struct ExperimentRunEventResponse {
+  1: i32 experimentRunId
 }
 
 // update this to be model spec?
@@ -66,7 +79,8 @@ struct FitEvent {
   4: list<string> featureColumns,
   5: list<string> predictionColumns,
   6: list<string> labelColumns,
-  7: i32 projectId
+  7: i32 projectId,
+  8: i32 experimentRunId
 }
 
 struct FitEventResponse {
@@ -84,7 +98,8 @@ struct MetricEvent {
   4: double metricValue,
   5: string labelCol,
   6: string predictionCol,
-  7: i32 projectId
+  7: i32 projectId,
+  8: i32 experimentRunId
 }
 
 struct MetricEventResponse {
@@ -100,15 +115,15 @@ struct TransformEvent {
   3: Transformer transformer
   4: list<string> inputColumns,
   5: list<string> outputColumns,
-  6: i32 projectId
+  6: i32 projectId,
+  7: i32 experimentRunId
 }
 
 struct TransformEventResponse {
   1: i32 oldDataFrameId,
   2: i32 newDataFrameId,
   3: i32 transformerId,
-  4: i32 eventId,
-  5: string filepath
+  4: i32 eventId
 }
 
 struct RandomSplitEvent {
@@ -116,7 +131,8 @@ struct RandomSplitEvent {
   2: list<double> weights,
   3: i64 seed,
   4: list<DataFrame> splitDataFrames,
-  5: i32 projectId
+  5: i32 projectId,
+  6: i32 experimentRunId
 }
 
 struct RandomSplitEventResponse {
@@ -148,7 +164,8 @@ struct CrossValidationEvent {
   7: list<string> featureColumns,
   // Note that we don't need to store numFolds, because we can infer that from from the length of this list.
   8: list<CrossValidationFold> folds,
-  9: i32 projectId
+  9: i32 projectId,
+  10: i32 experimentRunId
 }
 
 struct CrossValidationEventResponse {
@@ -163,7 +180,8 @@ struct GridSearchCrossValidationEvent {
   1: i32 numFolds,
   2: FitEvent bestFit,
   3: list<CrossValidationEvent> crossValidations,
-  4: i32 projectId
+  4: i32 projectId,
+  5: i32 experimentRunId
 }
 
 struct GridSearchCrossValidationEventResponse {
@@ -187,7 +205,8 @@ struct PipelineEvent {
   1: FitEvent pipelineFit,
   2: list<PipelineTransformStage> transformStages,
   3: list<PipelineFitStage> fitStages,
-  4: i32 projectId
+  4: i32 projectId,
+  5: i32 experimentRunId
 }
 
 struct PipelineEventResponse {
@@ -211,7 +230,8 @@ struct AnnotationFragmentResponse {
 
 struct AnnotationEvent {
   1: list<AnnotationFragment> fragments,
-  2: i32 projectId
+  2: i32 projectId,
+  3: i32 experimentRunId
 }
 
 struct AnnotationEventResponse {
@@ -229,7 +249,7 @@ struct DataFrameAncestry {
 service ModelDBService {
   // This is just a test method to test connection to the server
   i32 testConnection(), // 0 if success, -1 failure
-
+  
   string pathForTransformer(1: i32 transformerId),
 
   FitEventResponse storeFitEvent(1:FitEvent fe),
@@ -249,6 +269,8 @@ service ModelDBService {
   AnnotationEventResponse storeAnnotationEvent(1: AnnotationEvent ae),
 
   ProjectEventResponse storeProjectEvent(1: ProjectEvent pr),
+
+  ExperimentRunEventResponse storeExperimentRunEvent(1: ExperimentRunEvent er),
 
   DataFrameAncestry getDataFrameAncestry(1: i32 dataFrameId)
 }
