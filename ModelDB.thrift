@@ -123,7 +123,8 @@ struct TransformEventResponse {
   1: i32 oldDataFrameId,
   2: i32 newDataFrameId,
   3: i32 transformerId,
-  4: i32 eventId
+  4: i32 eventId,
+  5: string filepath
 }
 
 struct RandomSplitEvent {
@@ -249,7 +250,7 @@ struct DataFrameAncestry {
 service ModelDBService {
   // This is just a test method to test connection to the server
   i32 testConnection(), // 0 if success, -1 failure
-  
+
   string pathForTransformer(1: i32 transformerId),
 
   FitEventResponse storeFitEvent(1:FitEvent fe),
